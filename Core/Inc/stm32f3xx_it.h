@@ -55,8 +55,10 @@ void SVC_Handler(void);
 void DebugMon_Handler(void);
 void PendSV_Handler(void);
 void SysTick_Handler(void);
+void EXTI3_IRQHandler(void);
 void TIM2_IRQHandler(void);
 void TIM3_IRQHandler(void);
+void I2C1_EV_IRQHandler(void);
 /* USER CODE BEGIN EFP */
 void TIM2_RegisterUpdateCallback(void (*updateCallback)(void));
 void TIM3_RegisterUpdateCallback(void (*updateCallback)(void));
