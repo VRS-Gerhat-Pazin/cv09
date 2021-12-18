@@ -62,6 +62,7 @@ void I2C1_EV_IRQHandler(void);
 /* USER CODE BEGIN EFP */
 void TIM2_RegisterUpdateCallback(void (*updateCallback)(void));
 void TIM3_RegisterUpdateCallback(void (*updateCallback)(void));
+void EXTI3_RegisterCallback(void (*callback)(void));
 /* USER CODE END EFP */
 
 #ifdef __cplusplus
