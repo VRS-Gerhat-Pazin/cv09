@@ -51,7 +51,12 @@ extern "C" {
 
 /* Exported types ------------------------------------------------------------*/
 /* USER CODE BEGIN ET */
-
+typedef enum {
+	MODE_TEMPERATURE = 0,
+	MODE_HUMIDITY = 1,
+	MODE_PRESSURE = 2,
+	MODE_ALTITUDE = 3
+} MeasurementMode_t;
 /* USER CODE END ET */
 
 /* Exported constants --------------------------------------------------------*/

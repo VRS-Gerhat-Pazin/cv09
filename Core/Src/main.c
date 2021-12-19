@@ -48,10 +48,12 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-char text[]="Filip_Gerhat_98330";
+MeasurementMode_t mode = MODE_TEMPERATURE;
+
+char text[32] = "test_text";
+uint8_t text_length;
 uint8_t direction=0;
 uint8_t position=0;
-uint8_t length;
 
 char disp_text[4];
 uint8_t digit=0;
@@ -63,6 +65,7 @@ void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
 void RollText();
 void UpdateDisp();
+void ButtonPressHandler();
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -77,7 +80,7 @@ void UpdateDisp();
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-	length=strlen(text);
+	text_length=strlen(text);
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -113,22 +116,12 @@ int main(void)
   disableAllDigits();
   disableAllSegments();
 
-  // display test
-//  for(uint8_t dig = 0; dig < 5; dig++)
-//  {
-//	  disableAllDigits();
-//	  displayEnableDigit(dig);
-//	  for(uint8_t seg = 1; seg != 0; seg<<=1)
-//	  {
-//		  displaySegments(seg);
-//		  LL_mDelay(500);
-//	  }
-//  }
   uint8_t press_sensor_ok = lps25hb_init();
   uint8_t temp_sensor_ok = hts221_init();
 
   TIM2_RegisterUpdateCallback(UpdateDisp);
   TIM3_RegisterUpdateCallback(RollText);
+  EXTI3_RegisterCallback(ButtonPressHandler);
   LL_TIM_EnableIT_UPDATE(TIM2);
   LL_TIM_EnableIT_UPDATE(TIM3);
   LL_TIM_EnableCounter(TIM2);
@@ -141,15 +134,29 @@ int main(void)
   float temp, hum, press, alt;
   while (1)
   {
-	  if(press_sensor_ok)
+	  switch(mode)
 	  {
-		  press = lps25hb_get_pressure();
-		  alt = lps25hb_calculate_altitude(press);
+	  case MODE_TEMPERATURE:
+	  {
+
+		  break;
 	  }
-	  if(temp_sensor_ok)
+	  case MODE_HUMIDITY:
 	  {
-		  temp = hts221_get_temperature();
-		  hum = hts221_get_humidity();
+
+		  break;
+	  }
+	  case MODE_PRESSURE:
+	  {
+
+		  break;
+	  }
+	  case MODE_ALTITUDE:
+	  {
+
+		  break;
+	  }
+
 	  }
     /* USER CODE END WHILE */
 
@@ -198,7 +205,7 @@ void RollText()
 	if (direction==0)
 	{
 		position++;
-		if (position==(length-4))
+		if (position==(text_length-4))
 		{
 			direction=1;
 		}
@@ -222,6 +229,27 @@ void UpdateDisp()
 	if (digit>=4) digit=0;
 }
 
+void ButtonPressHandler()
+{
+	const uint8_t press_count = 30;
+
+	uint8_t samples_pressed = 0;
+	uint8_t samples_total = 50;
+
+	while((samples_total > 0) && (samples_pressed < press_count))
+	{
+		if(!LL_GPIO_IsInputPinSet(button_GPIO_Port, button_Pin))
+		{
+			samples_pressed++;
+		}
+		LL_mDelay(1);
+	}
+
+	if(samples_pressed >= press_count)
+	{
+		mode = (mode + 1) % 4;
+	}
+}
 /* USER CODE END 4 */
 
 /**
