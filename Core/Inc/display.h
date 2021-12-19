@@ -13,8 +13,13 @@
 
 void disableAllSegments();
 void disableAllDigits();
+
 uint8_t ascii_to_7segments(uint8_t character);
+
+void displaySegments(uint8_t segments);
 void displayAsciiCharacter(uint8_t character);
+void displayEnableDigit(uint8_t digit);
+
 extern const uint8_t seven_seg_digits_decode_abcdefg[];
 extern const uint32_t segment_pin[];
 extern const GPIO_TypeDef* segment_port[];

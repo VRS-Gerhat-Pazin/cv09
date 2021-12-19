@@ -12,12 +12,14 @@ static uint8_t address = LPS25HB_I2C_ADDRESS_1;
 
 void lps25hb_write_byte(uint8_t reg_address, uint8_t data)
 {
+//	i2c_master_write_byte(address, reg_address, data);
 	i2c_master_write(data, reg_address, address, 0);
 }
 
 uint8_t lps25hb_read_byte(uint8_t reg_address)
 {
 	uint8_t data;
+//	i2c_master_read_byte(address, reg_address, &data);
 	i2c_master_read(&data, 1, reg_address, address, 0);
 	return data;
 }

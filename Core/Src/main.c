@@ -27,6 +27,8 @@
 #include "display.h"
 #include "string.h"
 #include "stm32f3xx_it.h"
+#include "pressure_sensor/lps25hb.h"
+#include "temp_humidity_sensor/hts221.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -110,18 +112,45 @@ int main(void)
   /* USER CODE BEGIN 2 */
   disableAllDigits();
   disableAllSegments();
+
+  // display test
+//  for(uint8_t dig = 0; dig < 5; dig++)
+//  {
+//	  disableAllDigits();
+//	  displayEnableDigit(dig);
+//	  for(uint8_t seg = 1; seg != 0; seg<<=1)
+//	  {
+//		  displaySegments(seg);
+//		  LL_mDelay(500);
+//	  }
+//  }
+  uint8_t press_sensor_ok = lps25hb_init();
+  uint8_t temp_sensor_ok = hts221_init();
+
   TIM2_RegisterUpdateCallback(UpdateDisp);
   TIM3_RegisterUpdateCallback(RollText);
   LL_TIM_EnableIT_UPDATE(TIM2);
   LL_TIM_EnableIT_UPDATE(TIM3);
   LL_TIM_EnableCounter(TIM2);
   LL_TIM_EnableCounter(TIM3);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  float temp, hum, press, alt;
   while (1)
   {
+	  if(press_sensor_ok)
+	  {
+		  press = lps25hb_get_pressure();
+		  alt = lps25hb_calculate_altitude(press);
+	  }
+	  if(temp_sensor_ok)
+	  {
+		  temp = hts221_get_temperature();
+		  hum = hts221_get_humidity();
+	  }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -187,7 +216,7 @@ void RollText()
 void UpdateDisp()
 {
 	disableAllDigits();
-	LL_GPIO_SetOutputPin(digit_port[digit], digit_pin[digit]);
+	displayEnableDigit(digit);
 	displayAsciiCharacter(disp_text[digit]);
 	digit++;
 	if (digit>=4) digit=0;

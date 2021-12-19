@@ -37,7 +37,11 @@ uint8_t ascii_to_7segments(uint8_t character)
 void displayAsciiCharacter(uint8_t character)
 {
 	uint8_t segments = ascii_to_7segments(character);
+	displaySegments(segments);
+}
 
+void displaySegments(uint8_t segments)
+{
 	disableAllSegments();
 
 	uint8_t mask = 0x01;
@@ -49,6 +53,16 @@ void displayAsciiCharacter(uint8_t character)
 		}
 		mask <<= 1;
 	}
+}
+
+void displayEnableDigit(uint8_t digit)
+{
+	if(digit > 4)
+	{
+		return;
+	}
+
+	LL_GPIO_SetOutputPin(digit_port[digit], digit_pin[digit]);
 }
 
 // order of segments:

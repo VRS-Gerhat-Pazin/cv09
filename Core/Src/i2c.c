@@ -58,7 +58,7 @@ void MX_I2C1_Init(void)
   NVIC_EnableIRQ(I2C1_EV_IRQn);
 
   /* USER CODE BEGIN I2C1_Init 1 */
-
+  GPIOB->ODR |= (0b11 << 6);
   /* USER CODE END I2C1_Init 1 */
   /** I2C Initialization
   */
@@ -70,13 +70,13 @@ void MX_I2C1_Init(void)
   I2C_InitStruct.Timing = 0x2000090E;
   I2C_InitStruct.AnalogFilter = LL_I2C_ANALOGFILTER_ENABLE;
   I2C_InitStruct.DigitalFilter = 0;
-  I2C_InitStruct.OwnAddress1 = 0;
+  I2C_InitStruct.OwnAddress1 = 2;
   I2C_InitStruct.TypeAcknowledge = LL_I2C_ACK;
   I2C_InitStruct.OwnAddrSize = LL_I2C_OWNADDRESS1_7BIT;
   LL_I2C_Init(I2C1, &I2C_InitStruct);
   LL_I2C_SetOwnAddress2(I2C1, 0, LL_I2C_OWNADDRESS2_NOMASK);
   /* USER CODE BEGIN I2C1_Init 2 */
-
+  LL_I2C_Enable(I2C1);
   /* USER CODE END I2C1_Init 2 */
 
 }
@@ -139,6 +139,7 @@ uint8_t* i2c_master_read(uint8_t* buffer, uint8_t length, uint8_t register_addr,
 	LL_I2C_ClearFlag_STOP(I2C1);
 	LL_I2C_DisableIT_RX(I2C1);
 	I2C1->ICR |= (1 << 4);
+	LL_I2C_ClearFlag_NACK(I2C1);
 	ubReceiveIndex = 0;
 	end_of_read_flag = 1;
 
