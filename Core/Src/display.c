@@ -26,12 +26,38 @@ void disableAllDigits()
 
 uint8_t ascii_to_7segments(uint8_t character)
 {
+	if(character == '-')
+	{
+		return 0x01;
+	}
+
 	if((character < '0') || (character > 'z'))
 	{
 		return 0x00;
 	}
 
 	return seven_seg_digits_decode_abcdefg[character - '0'];
+}
+
+void disp_stringToSegmentArray(char* text, uint8_t text_length, uint8_t *segment_arr, uint8_t *segment_arr_length)
+{
+	uint8_t seg_pos = 0;
+
+	for(uint8_t i = 0; i < text_length; i++)
+	{
+		if(text[i] == '.')
+		{
+			seg_pos--;
+			segment_arr[seg_pos] |= 0x80; // enable DP segment
+		}
+		else
+		{
+			segment_arr[seg_pos] = ascii_to_7segments(text[i]);
+		}
+		seg_pos++;
+	}
+
+	*segment_arr_length = seg_pos;
 }
 
 void displayAsciiCharacter(uint8_t character)

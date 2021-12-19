@@ -15,6 +15,7 @@ void disableAllSegments();
 void disableAllDigits();
 
 uint8_t ascii_to_7segments(uint8_t character);
+void disp_stringToSegmentArray(char* text, uint8_t text_length, uint8_t *segment_arr, uint8_t *segment_arr_length);
 
 void displaySegments(uint8_t segments);
 void displayAsciiCharacter(uint8_t character);

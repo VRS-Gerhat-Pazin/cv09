@@ -26,6 +26,7 @@
 /* USER CODE BEGIN Includes */
 #include "display.h"
 #include "string.h"
+#include "stdio.h"
 #include "stm32f3xx_it.h"
 #include "pressure_sensor/lps25hb.h"
 #include "temp_humidity_sensor/hts221.h"
@@ -51,11 +52,12 @@
 MeasurementMode_t mode = MODE_TEMPERATURE;
 
 char text[32] = "test_text";
-uint8_t text_length;
+uint8_t disp_segment_array[32];
+uint8_t disp_segment_arr_length = 0;
 uint8_t direction=0;
 uint8_t position=0;
 
-char disp_text[4];
+uint8_t disp_segments_current[4];
 uint8_t digit=0;
 
 /* USER CODE END PV */
@@ -80,7 +82,7 @@ void ButtonPressHandler();
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-	text_length=strlen(text);
+	disp_stringToSegmentArray(text, strlen(text), disp_segment_array, &disp_segment_arr_length);
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -131,31 +133,74 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  float temp, hum, press, alt;
+  float temp = 0, hum = 0, press = 0, alt = 0;
   while (1)
   {
 	  switch(mode)
 	  {
 	  case MODE_TEMPERATURE:
 	  {
+		  if(temp_sensor_ok)
+		  {
+			  temp = hts221_get_temperature();
+		  }
+
+		  if(temp > 99.9) temp = 99.9;
+		  if(temp < -99.9) temp = -99.9;
+
+		  sprintf(text, "TEMP_%03.1f", temp);
+		  disp_stringToSegmentArray(text, strlen(text), disp_segment_array, &disp_segment_arr_length);
 
 		  break;
 	  }
 	  case MODE_HUMIDITY:
 	  {
+		  if(temp_sensor_ok)
+		  {
+			  hum = hts221_get_humidity();
+		  }
+
+		  if(hum > 99) hum = 99;
+		  if(hum < 0) hum = 0;
+
+		  sprintf(text, "HUM_%02.0f", hum);
+		  disp_stringToSegmentArray(text, strlen(text), disp_segment_array, &disp_segment_arr_length);
 
 		  break;
 	  }
 	  case MODE_PRESSURE:
 	  {
+		  if(press_sensor_ok)
+		  {
+			  press = lps25hb_get_pressure();
+		  }
+
+		  if(press > 9999.99) press = 9999.99;
+		  if(press < -9999.99) press = -9999.99;
+
+		  sprintf(text, "BAR_%06.2f", press);
+		  disp_stringToSegmentArray(text, strlen(text), disp_segment_array, &disp_segment_arr_length);
 
 		  break;
 	  }
 	  case MODE_ALTITUDE:
 	  {
+		  if(press_sensor_ok)
+		  {
+			  press = lps25hb_get_pressure();
+			  alt = lps25hb_calculate_altitude(press);
+		  }
+
+		  if(alt > 9999.9) alt = 9999.9;
+		  if(alt < -9999.9) alt = -9999.9;
+
+		  sprintf(text, "ALT_%05.1f", alt);
+		  disp_stringToSegmentArray(text, strlen(text), disp_segment_array, &disp_segment_arr_length);
 
 		  break;
 	  }
+
+//	  LL_mDelay(250);
 
 	  }
     /* USER CODE END WHILE */
@@ -201,11 +246,11 @@ void SystemClock_Config(void)
 /* USER CODE BEGIN 4 */
 void RollText()
 {
-	memcpy(disp_text, text+position, 4);
+	memcpy(disp_segments_current, disp_segment_array+position, 4);
 	if (direction==0)
 	{
 		position++;
-		if (position==(text_length-4))
+		if (position==(disp_segment_arr_length-4))
 		{
 			direction=1;
 		}
@@ -224,7 +269,8 @@ void UpdateDisp()
 {
 	disableAllDigits();
 	displayEnableDigit(digit);
-	displayAsciiCharacter(disp_text[digit]);
+//	displayAsciiCharacter(disp_segments_current[digit]);
+	displaySegments(disp_segments_current[digit]);
 	digit++;
 	if (digit>=4) digit=0;
 }
@@ -248,6 +294,8 @@ void ButtonPressHandler()
 	if(samples_pressed >= press_count)
 	{
 		mode = (mode + 1) % 4;
+		direction = 0;
+		position = 0;
 	}
 }
 /* USER CODE END 4 */
