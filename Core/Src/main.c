@@ -277,10 +277,10 @@ void UpdateDisp()
 
 void ButtonPressHandler()
 {
-	const uint8_t press_count = 30;
+	const uint8_t press_count = 20;
 
 	uint8_t samples_pressed = 0;
-	uint8_t samples_total = 50;
+	uint8_t samples_total = 30;
 
 	while((samples_total > 0) && (samples_pressed < press_count))
 	{
@@ -288,7 +288,13 @@ void ButtonPressHandler()
 		{
 			samples_pressed++;
 		}
+		else
+		{
+			samples_pressed = 0;
+		}
+		samples_total--;
 		LL_mDelay(1);
+
 	}
 
 	if(samples_pressed >= press_count)
